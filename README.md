@@ -46,6 +46,7 @@ A modern feature estimation tool for agile teams to plan and track project effor
    ```bash
    pnpm install
    ```
+   This step is required before running any other commands.
 
 3. Set up environment variables:
    ```bash
@@ -56,9 +57,12 @@ A modern feature estimation tool for agile teams to plan and track project effor
    DATABASE_URL="postgresql://user:password@localhost:5432/feature_estimator"
    ```
 
-4. Initialize the database:
+4. Create and initialize the database:
    ```bash
-   # Set up database (runs migrations, generates client, and seeds data)
+   # First, create the database in PostgreSQL
+   createdb feature_estimator
+
+   # Then set up the database (runs migrations, generates client, and seeds data)
    pnpm db:setup
    ```
 
@@ -137,6 +141,7 @@ feature-estimator/
 
 ### Available Scripts
 
+- `pnpm install` - Install dependencies (required first)
 - `pnpm dev` - Start development server
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
