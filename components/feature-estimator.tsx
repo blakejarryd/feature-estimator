@@ -1,6 +1,7 @@
 'use client';
 
-import { Plus, Trash2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { Plus, Trash2, Loader2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -24,16 +25,25 @@ export function FeatureEstimator() {
   const { 
     features, 
     effortConfigs,
+    isLoading,
+    error,
+    fetchFeatures,
+    fetchEffortConfigs,
     addFeature, 
     updateFeature, 
     deleteFeature 
   } = useStore();
 
+  useEffect(() => {
+    fetchFeatures();
+    fetchEffortConfigs();
+  }, [fetchFeatures, fetchEffortConfigs]);
+
   const handleAdd = () => {
     addFeature({
       title: '',
       description: '',
-      effort: 'Medium',
+      effort: effortConfigs[0]?.effortSize || 'Medium',
       priority: 'Should',
       category: ''
     });
@@ -62,12 +72,25 @@ export function FeatureEstimator() {
   const summary = calculateSummary();
   const priorityOptions = ['Must', 'Should', 'Could'];
 
+  if (error) {
+    return <div className="p-4 text-red-500">Error: {error}</div>;
+  }
+
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Feature Estimation</h1>
-        <Button onClick={handleAdd} className="flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Add Feature
+        <Button 
+          onClick={handleAdd} 
+          className="flex items-center gap-2"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Plus className="w-4 h-4" />
+          )}
+          Add Feature
         </Button>
       </div>
 
@@ -91,6 +114,7 @@ export function FeatureEstimator() {
                   value={feature.title}
                   onChange={(e) => handleUpdate(feature.id, 'title', e.target.value)}
                   className="w-full"
+                  disabled={isLoading}
                 />
               </TableCell>
               <TableCell>
@@ -98,6 +122,7 @@ export function FeatureEstimator() {
                   value={feature.description}
                   onChange={(e) => handleUpdate(feature.id, 'description', e.target.value)}
                   className="w-full"
+                  disabled={isLoading}
                 />
               </TableCell>
               <TableCell>
@@ -105,12 +130,14 @@ export function FeatureEstimator() {
                   value={feature.category}
                   onChange={(e) => handleUpdate(feature.id, 'category', e.target.value)}
                   className="w-full"
+                  disabled={isLoading}
                 />
               </TableCell>
               <TableCell>
                 <Select
                   value={feature.effort}
                   onValueChange={(value) => handleUpdate(feature.id, 'effort', value)}
+                  disabled={isLoading}
                 >
                   <SelectTrigger>
                     <SelectValue>{feature.effort}</SelectValue>
@@ -128,6 +155,7 @@ export function FeatureEstimator() {
                 <Select
                   value={feature.priority}
                   onValueChange={(value) => handleUpdate(feature.id, 'priority', value)}
+                  disabled={isLoading}
                 >
                   <SelectTrigger>
                     <SelectValue>{feature.priority}</SelectValue>
@@ -151,8 +179,13 @@ export function FeatureEstimator() {
                   variant="destructive"
                   size="icon"
                   onClick={() => deleteFeature(feature.id)}
+                  disabled={isLoading}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                 </Button>
               </TableCell>
             </TableRow>
