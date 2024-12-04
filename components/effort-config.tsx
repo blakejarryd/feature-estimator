@@ -75,3 +75,61 @@ export function EffortConfiguration() {
           <Plus className="w-4 h-4" /> Add Configuration
         </Button>
       </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Effort Size</TableHead>
+            <TableHead>Days</TableHead>
+            <TableHead>Cost per Day</TableHead>
+            <TableHead>Total Cost</TableHead>
+            <TableHead className="w-16">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {configs.map((config) => (
+            <TableRow key={config.id}>
+              <TableCell>
+                <Input
+                  value={config.effortSize}
+                  onChange={(e) => updateConfig(config.id, 'effortSize', e.target.value)}
+                  className="w-full"
+                />
+              </TableCell>
+              <TableCell>
+                <Input
+                  type="number"
+                  value={config.days}
+                  onChange={(e) => updateConfig(config.id, 'days', parseFloat(e.target.value))}
+                  className="w-full"
+                />
+              </TableCell>
+              <TableCell>
+                <Input
+                  type="number"
+                  value={config.costPerDay}
+                  onChange={(e) => updateConfig(config.id, 'costPerDay', parseFloat(e.target.value))}
+                  className="w-full"
+                />
+              </TableCell>
+              <TableCell>
+                <div className="font-medium">
+                  ${(config.days * config.costPerDay).toLocaleString()}
+                </div>
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => deleteConfig(config.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
