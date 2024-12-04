@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -71,24 +71,20 @@ export function EffortConfiguration() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Effort Configuration</h2>
         <Button 
           onClick={handleAdd} 
-          className="flex items-center gap-2 bg-secondary hover:bg-secondary/90"
+          className="bg-slate-900 text-white hover:bg-slate-800 rounded-lg gap-2 h-10 px-4"
           disabled={isLoading}
         >
-          {isLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Plus className="w-4 h-4" />
-          )}
+          <Plus className="h-4 w-4" />
           Add Configuration
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm">
+      <div className="bg-white rounded-md">
         <Table>
           <TableHeader>
             <TableRow>
@@ -96,7 +92,7 @@ export function EffortConfiguration() {
               <TableHead>Days</TableHead>
               <TableHead>Cost per Day</TableHead>
               <TableHead>Total Cost</TableHead>
-              <TableHead className="w-16">Actions</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -139,12 +135,9 @@ export function EffortConfiguration() {
                     size="icon"
                     onClick={() => deleteEffortConfig(config.id)}
                     disabled={isLoading}
+                    className="bg-red-500 hover:bg-red-600 h-8 w-8 rounded-md"
                   >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-4 h-4" />
-                    )}
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </TableCell>
               </TableRow>
