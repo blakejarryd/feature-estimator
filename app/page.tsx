@@ -1,5 +1,5 @@
-import { FeatureEstimator } from '@/components/feature-estimator';
-import { EffortConfiguration } from '@/components/effort-config';
+import { FeatureEstimator } from '../components/feature-estimator';
+import { EffortConfiguration } from '../components/effort-config';
 export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50">

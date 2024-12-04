@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { Textarea } from "./ui/textarea";
 import {
   Table,
   TableBody,
@@ -9,16 +10,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "./ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from "./ui/select";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import { useStore } from '@/lib/store';
 
 // Add debounce timeout storage outside component
@@ -142,12 +143,15 @@ export function FeatureEstimator() {
                   />
                 </TableCell>
                 <TableCell>
-                  <Input
+                <TableCell>
+                  <Textarea
                     value={feature.description}
-                    onChange={(e) => handleUpdate(feature.id, 'description', e.target.value)}
-                    className="w-full"
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleUpdate(feature.id, 'description', e.target.value)}
+                    className="w-full min-h-[100px] resize-none"
+                    placeholder="Enter feature description..."
                     disabled={isLoading}
                   />
+                </TableCell>
                 </TableCell>
                 <TableCell>
                   <Input
