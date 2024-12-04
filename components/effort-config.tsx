@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,66 +11,28 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-
-interface EffortConfig {
-  id: string;
-  effortSize: string;
-  days: number;
-  costPerDay: number;
-}
+import { useStore } from '@/lib/store';
 
 export function EffortConfiguration() {
-  const [configs, setConfigs] = useState<EffortConfig[]>([
-    {
-      id: '1',
-      effortSize: 'Extra Small',
-      days: 3,
-      costPerDay: 1000
-    },
-    {
-      id: '2',
-      effortSize: 'Small',
-      days: 5,
-      costPerDay: 1000
-    },
-    {
-      id: '3',
-      effortSize: 'Medium',
-      days: 10,
-      costPerDay: 1000
-    },
-    {
-      id: '4',
-      effortSize: 'Large',
-      days: 20,
-      costPerDay: 1000
-    }
-  ]);
+  const { effortConfigs, addEffortConfig, updateEffortConfig, deleteEffortConfig } = useStore();
 
-  const addConfig = () => {
-    setConfigs([...configs, {
-      id: Date.now().toString(),
+  const handleAdd = () => {
+    addEffortConfig({
       effortSize: '',
       days: 0,
       costPerDay: 0
-    }]);
+    });
   };
 
-  const updateConfig = (id: string, field: keyof EffortConfig, value: string | number) => {
-    setConfigs(configs.map(config => 
-      config.id === id ? { ...config, [field]: value } : config
-    ));
-  };
-
-  const deleteConfig = (id: string) => {
-    setConfigs(configs.filter(config => config.id !== id));
+  const handleUpdate = (id: string, field: string, value: string | number) => {
+    updateEffortConfig(id, { [field]: value });
   };
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Effort Configuration</h2>
-        <Button onClick={addConfig} className="flex items-center gap-2">
+        <Button onClick={handleAdd} className="flex items-center gap-2">
           <Plus className="w-4 h-4" /> Add Configuration
         </Button>
       </div>
@@ -87,12 +48,12 @@ export function EffortConfiguration() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {configs.map((config) => (
+          {effortConfigs.map((config) => (
             <TableRow key={config.id}>
               <TableCell>
                 <Input
                   value={config.effortSize}
-                  onChange={(e) => updateConfig(config.id, 'effortSize', e.target.value)}
+                  onChange={(e) => handleUpdate(config.id, 'effortSize', e.target.value)}
                   className="w-full"
                 />
               </TableCell>
@@ -100,7 +61,7 @@ export function EffortConfiguration() {
                 <Input
                   type="number"
                   value={config.days}
-                  onChange={(e) => updateConfig(config.id, 'days', parseFloat(e.target.value))}
+                  onChange={(e) => handleUpdate(config.id, 'days', parseFloat(e.target.value))}
                   className="w-full"
                 />
               </TableCell>
@@ -108,7 +69,7 @@ export function EffortConfiguration() {
                 <Input
                   type="number"
                   value={config.costPerDay}
-                  onChange={(e) => updateConfig(config.id, 'costPerDay', parseFloat(e.target.value))}
+                  onChange={(e) => handleUpdate(config.id, 'costPerDay', parseFloat(e.target.value))}
                   className="w-full"
                 />
               </TableCell>
@@ -121,7 +82,7 @@ export function EffortConfiguration() {
                 <Button
                   variant="destructive"
                   size="icon"
-                  onClick={() => deleteConfig(config.id)}
+                  onClick={() => deleteEffortConfig(config.id)}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
