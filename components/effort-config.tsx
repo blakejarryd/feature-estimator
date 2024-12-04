@@ -1,6 +1,7 @@
 'use client';
 
-import { Plus, Trash2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { Plus, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -14,7 +15,19 @@ import { Input } from '@/components/ui/input';
 import { useStore } from '@/lib/store';
 
 export function EffortConfiguration() {
-  const { effortConfigs, addEffortConfig, updateEffortConfig, deleteEffortConfig } = useStore();
+  const { 
+    effortConfigs, 
+    isLoading,
+    error,
+    fetchEffortConfigs,
+    addEffortConfig, 
+    updateEffortConfig, 
+    deleteEffortConfig 
+  } = useStore();
+
+  useEffect(() => {
+    fetchEffortConfigs();
+  }, [fetchEffortConfigs]);
 
   const handleAdd = () => {
     addEffortConfig({
@@ -28,12 +41,25 @@ export function EffortConfiguration() {
     updateEffortConfig(id, { [field]: value });
   };
 
+  if (error) {
+    return <div className="p-4 text-red-500">Error: {error}</div>;
+  }
+
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Effort Configuration</h2>
-        <Button onClick={handleAdd} className="flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Add Configuration
+        <Button 
+          onClick={handleAdd} 
+          className="flex items-center gap-2"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Plus className="w-4 h-4" />
+          )}
+          Add Configuration
         </Button>
       </div>
 
@@ -55,6 +81,7 @@ export function EffortConfiguration() {
                   value={config.effortSize}
                   onChange={(e) => handleUpdate(config.id, 'effortSize', e.target.value)}
                   className="w-full"
+                  disabled={isLoading}
                 />
               </TableCell>
               <TableCell>
@@ -63,6 +90,7 @@ export function EffortConfiguration() {
                   value={config.days}
                   onChange={(e) => handleUpdate(config.id, 'days', parseFloat(e.target.value))}
                   className="w-full"
+                  disabled={isLoading}
                 />
               </TableCell>
               <TableCell>
@@ -71,6 +99,7 @@ export function EffortConfiguration() {
                   value={config.costPerDay}
                   onChange={(e) => handleUpdate(config.id, 'costPerDay', parseFloat(e.target.value))}
                   className="w-full"
+                  disabled={isLoading}
                 />
               </TableCell>
               <TableCell>
@@ -83,8 +112,13 @@ export function EffortConfiguration() {
                   variant="destructive"
                   size="icon"
                   onClick={() => deleteEffortConfig(config.id)}
+                  disabled={isLoading}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
                 </Button>
               </TableCell>
             </TableRow>
