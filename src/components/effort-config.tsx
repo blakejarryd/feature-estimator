@@ -69,3 +69,89 @@ export function EffortConfiguration() {
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>;
   }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Effort Configuration</h2>
+        <Button 
+          onClick={handleAdd} 
+          className="flex items-center gap-2 bg-secondary hover:bg-secondary/90"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Plus className="w-4 h-4" />
+          )}
+          Add Configuration
+        </Button>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Effort Size</TableHead>
+              <TableHead>Days</TableHead>
+              <TableHead>Cost per Day</TableHead>
+              <TableHead>Total Cost</TableHead>
+              <TableHead className="w-16">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {localConfigs.map((config) => (
+              <TableRow key={config.id}>
+                <TableCell>
+                  <Input
+                    value={config.effortSize}
+                    onChange={(e) => handleUpdate(config.id, 'effortSize', e.target.value)}
+                    className="w-full"
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    type="number"
+                    value={config.days}
+                    onChange={(e) => handleUpdate(config.id, 'days', parseFloat(e.target.value))}
+                    className="w-full"
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    type="number"
+                    value={config.costPerDay}
+                    onChange={(e) => handleUpdate(config.id, 'costPerDay', parseFloat(e.target.value))}
+                    className="w-full"
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium">
+                    ${(config.days * config.costPerDay).toLocaleString()}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => deleteEffortConfig(config.id)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
