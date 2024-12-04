@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Trash2, Loader2 } from 'lucide-react';
 import {
   Table,
@@ -20,6 +20,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useStore } from '@/lib/store';
+import { useDebounce } from '@/lib/hooks/useDebounce';
+
+interface LocalFeature {
+  id: string;
+  title: string;
+  description: string;
+  effort: string;
+  priority: string;
+  category: string;
+}
 
 export function FeatureEstimator() {
   const { 
@@ -34,10 +44,18 @@ export function FeatureEstimator() {
     deleteFeature 
   } = useStore();
 
+  // Local state for immediate updates
+  const [localFeatures, setLocalFeatures] = useState<LocalFeature[]>([]);
+
   useEffect(() => {
     fetchFeatures();
     fetchEffortConfigs();
   }, [fetchFeatures, fetchEffortConfigs]);
+
+  // Update local state when features change
+  useEffect(() => {
+    setLocalFeatures(features);
+  }, [features]);
 
   const handleAdd = () => {
     addFeature({
@@ -49,8 +67,17 @@ export function FeatureEstimator() {
     });
   };
 
+  const debouncedUpdate = useDebounce(updateFeature, 500);
+
   const handleUpdate = (id: string, field: string, value: string) => {
-    updateFeature(id, { [field]: value });
+    // Update local state immediately
+    setLocalFeatures(prev => 
+      prev.map(feature =>
+        feature.id === id ? { ...feature, [field]: value } : feature
+      )
+    );
+    // Debounce API call
+    debouncedUpdate(id, { [field]: value });
   };
 
   const calculateCost = (effort: string) => {
@@ -59,7 +86,7 @@ export function FeatureEstimator() {
   };
 
   const calculateSummary = () => {
-    return features.reduce((acc, feature) => {
+    return localFeatures.reduce((acc, feature) => {
       const priority = feature.priority;
       const cost = calculateCost(feature.effort);
       acc[priority] = acc[priority] || { count: 0, cost: 0 };
@@ -107,7 +134,7 @@ export function FeatureEstimator() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {features.map((feature) => (
+          {localFeatures.map((feature) => (
             <TableRow key={feature.id}>
               <TableCell>
                 <Input
