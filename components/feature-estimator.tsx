@@ -87,17 +87,21 @@ export function FeatureEstimator() {
     // First create the summary data
     const summaryData = features.reduce((acc, feature) => {
       const priority = feature.priority;
+      const config = effortConfigs.find(c => c.effortSize === feature.effort);
       const cost = calculateCost(feature.effort);
-      acc[priority] = acc[priority] || { count: 0, cost: 0 };
+      const days = config ? config.days : 0;
+      
+      acc[priority] = acc[priority] || { count: 0, cost: 0, days: 0 };
       acc[priority].count++;
       acc[priority].cost += cost;
+      acc[priority].days += days;
       return acc;
-    }, {} as Record<string, { count: number; cost: number }>);
-
+    }, {} as Record<string, { count: number; cost: number; days: number }>);
+  
     // Then return ordered array based on priorityOrder
     return priorityOrder.map(priority => ({
       priority,
-      ...summaryData[priority] || { count: 0, cost: 0 }
+      ...(summaryData[priority] || { count: 0, cost: 0, days: 0 })
     }));
   };
 
@@ -241,18 +245,21 @@ export function FeatureEstimator() {
       <div className="px-6 py-5 bg-gray-50 border-t border-gray-200">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Summary</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {summary.map(({ priority, count, cost }) => (
-            <div key={priority} className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="text-sm font-medium text-gray-500">{priority}</div>
-              <div className="mt-1">
-                <span className="text-2xl font-bold text-gray-900">{count}</span>
-                <span className="ml-2 text-sm text-gray-500">features</span>
-              </div>
-              <div className="mt-1 text-sm text-gray-500">
-                ${cost.toLocaleString()} total
-              </div>
+        {summary.map(({ priority, count, cost, days }) => (
+          <div key={priority} className="bg-white p-4 rounded-lg shadow-sm">
+            <div className="text-sm font-medium text-gray-500">{priority}</div>
+            <div className="mt-1">
+              <span className="text-2xl font-bold text-gray-900">{count}</span>
+              <span className="ml-2 text-sm text-gray-500">features</span>
             </div>
-          ))}
+            <div className="mt-1 text-sm text-gray-500">
+              ${cost.toLocaleString()} total
+            </div>
+            <div className="mt-1 text-sm text-gray-500">
+      {days} days total
+    </div>
+          </div>
+        ))}
         </div>
       </div>
     </div>
