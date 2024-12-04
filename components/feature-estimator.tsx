@@ -120,21 +120,21 @@ export function FeatureEstimator() {
 
       <div className="px-6 py-4 overflow-x-auto">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Feature</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Effort</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Cost</TableHead>
-              <TableHead className="w-16">Actions</TableHead>
+          <TableHeader className="sticky top-0 bg-white z-10">
+            <TableRow className="hover:bg-gray-50">
+              <TableHead className="w-[25%]">Feature</TableHead>
+              <TableHead className="w-[30%]">Description</TableHead>
+              <TableHead className="w-[10%]">Category</TableHead>
+              <TableHead className="w-[10%]">Effort</TableHead>
+              <TableHead className="w-[10%]">Priority</TableHead>
+              <TableHead className="w-[10%]">Cost</TableHead>
+              <TableHead className="w-[5%]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {features.map((feature) => (
               <TableRow key={feature.id}>
-                <TableCell>
+                <TableCell className="py-4">
                   <Input
                     value={feature.title}
                     onChange={(e) => handleUpdate(feature.id, 'title', e.target.value)}
@@ -142,18 +142,18 @@ export function FeatureEstimator() {
                     disabled={isLoading}
                   />
                 </TableCell>
-                <TableCell>
-                <TableCell>
+                <TableCell className="py-4">
+                <TableCell className="w-1/3">
                   <Textarea
                     value={feature.description}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleUpdate(feature.id, 'description', e.target.value)}
-                    className="w-full min-h-[100px] resize-none"
-                    placeholder="Enter feature description..."
+                    className="w-full min-h-[120px]"
+                    placeholder="Enter bullet points or detailed description..."
                     disabled={isLoading}
                   />
                 </TableCell>
                 </TableCell>
-                <TableCell>
+                <TableCell className="py-4">
                   <Input
                     value={feature.category}
                     onChange={(e) => handleUpdate(feature.id, 'category', e.target.value)}
@@ -161,7 +161,7 @@ export function FeatureEstimator() {
                     disabled={isLoading}
                   />
                 </TableCell>
-                <TableCell>
+                <TableCell className="py-4">
                   <Select
                     value={feature.effort}
                     onValueChange={(value) => handleUpdate(feature.id, 'effort', value)}
@@ -187,7 +187,7 @@ export function FeatureEstimator() {
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell>
+                <TableCell className="py-4">
                   <Select
                     value={feature.priority}
                     onValueChange={(value) => handleUpdate(feature.id, 'priority', value)}
@@ -213,12 +213,12 @@ export function FeatureEstimator() {
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell>
+                <TableCell className="py-4">
                   <div className="font-medium">
                     ${calculateCost(feature.effort).toLocaleString()}
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="py-4">
                   <Button
                     variant="destructive"
                     size="icon"
