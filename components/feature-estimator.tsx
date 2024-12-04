@@ -1,3 +1,256 @@
-files: { 
-  'feature-estimator.tsx': "'use client';\n\nimport { useEffect, useCallback } from 'react';\nimport { Plus, Trash2, Loader2 } from 'lucide-react';\nimport {\n  Table,\n  TableBody,\n  TableCell,\n  TableHead,\n  TableHeader,\n  TableRow,\n} from \"@/components/ui/table\";\nimport {\n  Select,\n  SelectContent,\n  SelectItem,\n  SelectTrigger,\n  SelectValue,\n} from \"@/components/ui/select\";\nimport { Button } from \"@/components/ui/button\";\nimport { Input } from \"@/components/ui/input\";\nimport { useStore } from '@/lib/store';\n\n// Add debounce timeout storage outside component\nconst DEBOUNCE_MS = 1000; // 1 second delay\nconst updateTimeouts: { [key: string]: NodeJS.Timeout } = {};\n\nexport function FeatureEstimator() {\n  const { \n    features, \n    effortConfigs,\n    isLoading,\n    error,\n    fetchFeatures,\n    fetchEffortConfigs,\n    addFeature, \n    updateFeature, \n    deleteFeature \n  } = useStore();\n\n  useEffect(() => {\n    fetchFeatures();\n    fetchEffortConfigs();\n  }, [fetchFeatures, fetchEffortConfigs]);\n\n  const handleAdd = () => {\n    addFeature({\n      title: '',\n      description: '',\n      effort: effortConfigs[0]?.effortSize || 'Medium',\n      priority: 'Should',\n      category: ''\n    });\n  };\n\n  const handleUpdate = useCallback((id: string, field: string, value: string) => {\n    // Clear any existing timeout for this field\n    if (updateTimeouts[`${id}-${field}`]) {\n      clearTimeout(updateTimeouts[`${id}-${field}`]);\n    }\n\n    // Set the new value immediately in the UI\n    const updatedFeature = features.find(f => f.id === id);\n    if (updatedFeature) {\n      const newFeatures = features.map(f => \n        f.id === id ? { ...f, [field]: value } : f\n      );\n      useStore.setState({ features: newFeatures });\n    }\n\n    // Debounce the API call\n    updateTimeouts[`${id}-${field}`] = setTimeout(() => {\n      updateFeature(id, { [field]: value });\n    }, DEBOUNCE_MS);\n  }, [features, updateFeature]);\n\n  const calculateCost = (effort: string) => {\n    const config = effortConfigs.find(c => c.effortSize === effort);\n    return config ? config.days * config.costPerDay : 0;\n  };\n\n  const calculateSummary = () => {\n    return features.reduce((acc, feature) => {\n      const priority = feature.priority;\n      const cost = calculateCost(feature.effort);\n      acc[priority] = acc[priority] || { count: 0, cost: 0 };\n      acc[priority].count++;\n      acc[priority].cost += cost;\n      return acc;\n    }, {} as Record<string, { count: number; cost: number }>);\n  };\n\n  const summary = calculateSummary();\n  const priorityOptions = ['Must', 'Should', 'Could'];\n\n  if (error) {\n    return <div className=\"p-4 text-red-500\">Error: {error}</div>;\n  }\n\n  return (\n    <div className=\"bg-white rounded-lg shadow-sm\">\n      <div className=\"px-6 py-5 border-b border-gray-200\">\n        <div className=\"flex justify-between items-center\">\n          <h1 className=\"text-2xl font-bold text-gray-900\">Feature Estimation</h1>\n          <Button \n            onClick={handleAdd} \n            className=\"flex items-center gap-2\"\n            disabled={isLoading}\n          >\n            {isLoading ? (\n              <Loader2 className=\"w-4 h-4 animate-spin\" />\n            ) : (\n              <Plus className=\"w-4 h-4\" />\n            )}\n            Add Feature\n          </Button>\n        </div>\n      </div>\n\n      <div className=\"px-6 py-4 overflow-x-auto\">\n        <Table>\n          <TableHeader>\n            <TableRow>\n              <TableHead>Feature</TableHead>\n              <TableHead>Description</TableHead>\n              <TableHead>Category</TableHead>\n              <TableHead>Effort</TableHead>\n              <TableHead>Priority</TableHead>\n              <TableHead>Cost</TableHead>\n              <TableHead className=\"w-16\">Actions</TableHead>\n            </TableRow>\n          </TableHeader>\n          <TableBody>\n            {features.map((feature) => (\n              <TableRow key={feature.id}>\n                <TableCell>\n                  <Input\n                    value={feature.title}\n                    onChange={(e) => handleUpdate(feature.id, 'title', e.target.value)}\n                    className=\"w-full\"\n                    disabled={isLoading}\n                  />\n                </TableCell>\n                <TableCell>\n                  <Input\n                    value={feature.description}\n                    onChange={(e) => handleUpdate(feature.id, 'description', e.target.value)}\n                    className=\"w-full\"\n                    disabled={isLoading}\n                  />\n                </TableCell>\n                <TableCell>\n                  <Input\n                    value={feature.category}\n                    onChange={(e) => handleUpdate(feature.id, 'category', e.target.value)}\n                    className=\"w-full\"\n                    disabled={isLoading}\n                  />\n                </TableCell>\n                <TableCell>\n                  <Select\n                    value={feature.effort}\n                    onValueChange={(value) => handleUpdate(feature.id, 'effort', value)}\n                    disabled={isLoading}\n                  >\n                    <SelectTrigger>\n                      <SelectValue>{feature.effort}</SelectValue>\n                    </SelectTrigger>\n                    <SelectContent>\n                      {effortConfigs\n                        .filter(config => {\n                          const isValid = config.effortSize?.trim();\n                          if (!isValid) {\n                            console.warn('Invalid effortSize:', config.effortSize);\n                          }\n                          return isValid;\n                        })\n                        .map((config) => (\n                          <SelectItem key={config.effortSize} value={config.effortSize}>\n                            {config.effortSize}\n                          </SelectItem>\n                        ))}\n                    </SelectContent>\n                  </Select>\n                </TableCell>\n                <TableCell>\n                  <Select\n                    value={feature.priority}\n                    onValueChange={(value) => handleUpdate(feature.id, 'priority', value)}\n                    disabled={isLoading}\n                  >\n                    <SelectTrigger>\n                      <SelectValue>{feature.priority}</SelectValue>\n                    </SelectTrigger>\n                    <SelectContent>\n                      {priorityOptions\n                        .filter(priority => {\n                          const isValid = priority?.trim();\n                          if (!isValid) {\n                            console.warn('Invalid priority:', priority);\n                          }\n                          return isValid;\n                        })\n                        .map((priority) => (\n                          <SelectItem key={priority} value={priority}>\n                            {priority}\n                          </SelectItem>\n                        ))}\n                    </SelectContent>\n                  </Select>\n                </TableCell>\n                <TableCell>\n                  <div className=\"font-medium\">\n                    ${calculateCost(feature.effort).toLocaleString()}\n                  </div>\n                </TableCell>\n                <TableCell>\n                  <Button\n                    variant=\"destructive\"\n                    size=\"icon\"\n                    onClick={() => deleteFeature(feature.id)}\n                    disabled={isLoading}\n                  >\n                    {isLoading ? (\n                      <Loader2 className=\"w-4 h-4 animate-spin\" />\n                    ) : (\n                      <Trash2 className=\"w-4 h-4\" />\n                    )}\n                  </Button>\n                </TableCell>\n              </TableRow>\n            ))}\n          </TableBody>\n        </Table>\n      </div>\n\n      <div className=\"px-6 py-5 bg-gray-50 border-t border-gray-200\">\n        <h2 className=\"text-lg font-semibold text-gray-900 mb-4\">Summary</h2>\n        <div className=\"grid grid-cols-1 sm:grid-cols-3 gap-4\">\n          {Object.entries(summary).map(([priority, { count, cost }]) => (\n            <div key={priority} className=\"bg-white p-4 rounded-lg shadow-sm\">\n              <div className=\"text-sm font-medium text-gray-500\">{priority}</div>\n              <div className=\"mt-1\">\n                <span className=\"text-2xl font-bold text-gray-900\">{count}</span>\n                <span className=\"ml-2 text-sm text-gray-500\">features</span>\n              </div>\n              <div className=\"mt-1 text-sm text-gray-500\">\n                ${cost.toLocaleString()} total\n              </div>\n            </div>\n          ))}\n        </div>\n      </div>\n    </div>\n  );\n}"
+'use client';
+
+import { useEffect, useCallback } from 'react';
+import { Plus, Trash2, Loader2 } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useStore } from '@/lib/store';
+
+// Add debounce timeout storage outside component
+const DEBOUNCE_MS = 1000; // 1 second delay
+const updateTimeouts: { [key: string]: NodeJS.Timeout } = {};
+
+export function FeatureEstimator() {
+  const { 
+    features, 
+    effortConfigs,
+    isLoading,
+    error,
+    fetchFeatures,
+    fetchEffortConfigs,
+    addFeature, 
+    updateFeature, 
+    deleteFeature 
+  } = useStore();
+
+  useEffect(() => {
+    fetchFeatures();
+    fetchEffortConfigs();
+  }, [fetchFeatures, fetchEffortConfigs]);
+
+  const handleAdd = () => {
+    addFeature({
+      title: '',
+      description: '',
+      effort: effortConfigs[0]?.effortSize || 'Medium',
+      priority: 'Should',
+      category: ''
+    });
+  };
+
+  const handleUpdate = useCallback((id: string, field: string, value: string) => {
+    // Clear any existing timeout for this field
+    if (updateTimeouts[`${id}-${field}`]) {
+      clearTimeout(updateTimeouts[`${id}-${field}`]);
+    }
+
+    // Set the new value immediately in the UI
+    const updatedFeature = features.find(f => f.id === id);
+    if (updatedFeature) {
+      const newFeatures = features.map(f => 
+        f.id === id ? { ...f, [field]: value } : f
+      );
+      useStore.setState({ features: newFeatures });
+    }
+
+    // Debounce the API call
+    updateTimeouts[`${id}-${field}`] = setTimeout(() => {
+      updateFeature(id, { [field]: value });
+    }, DEBOUNCE_MS);
+  }, [features, updateFeature]);
+
+  const calculateCost = (effort: string) => {
+    const config = effortConfigs.find(c => c.effortSize === effort);
+    return config ? config.days * config.costPerDay : 0;
+  };
+
+  const calculateSummary = () => {
+    return features.reduce((acc, feature) => {
+      const priority = feature.priority;
+      const cost = calculateCost(feature.effort);
+      acc[priority] = acc[priority] || { count: 0, cost: 0 };
+      acc[priority].count++;
+      acc[priority].cost += cost;
+      return acc;
+    }, {} as Record<string, { count: number; cost: number }>);
+  };
+
+  const summary = calculateSummary();
+  const priorityOptions = ['Must', 'Should', 'Could'];
+
+  if (error) {
+    return <div className="p-4 text-red-500">Error: {error}</div>;
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm">
+      <div className="px-6 py-5 border-b border-gray-200">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900">Feature Estimation</h1>
+          <Button 
+            onClick={handleAdd} 
+            className="flex items-center gap-2"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
+            Add Feature
+          </Button>
+        </div>
+      </div>
+
+      <div className="px-6 py-4 overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Feature</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Effort</TableHead>
+              <TableHead>Priority</TableHead>
+              <TableHead>Cost</TableHead>
+              <TableHead className="w-16">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {features.map((feature) => (
+              <TableRow key={feature.id}>
+                <TableCell>
+                  <Input
+                    value={feature.title}
+                    onChange={(e) => handleUpdate(feature.id, 'title', e.target.value)}
+                    className="w-full"
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    value={feature.description}
+                    onChange={(e) => handleUpdate(feature.id, 'description', e.target.value)}
+                    className="w-full"
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    value={feature.category}
+                    onChange={(e) => handleUpdate(feature.id, 'category', e.target.value)}
+                    className="w-full"
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Select
+                    value={feature.effort}
+                    onValueChange={(value) => handleUpdate(feature.id, 'effort', value)}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue>{feature.effort}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {effortConfigs
+                        .filter(config => {
+                          const isValid = config.effortSize?.trim();
+                          if (!isValid) {
+                            console.warn('Invalid effortSize:', config.effortSize);
+                          }
+                          return isValid;
+                        })
+                        .map((config) => (
+                          <SelectItem key={config.effortSize} value={config.effortSize}>
+                            {config.effortSize}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <Select
+                    value={feature.priority}
+                    onValueChange={(value) => handleUpdate(feature.id, 'priority', value)}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue>{feature.priority}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {priorityOptions
+                        .filter(priority => {
+                          const isValid = priority?.trim();
+                          if (!isValid) {
+                            console.warn('Invalid priority:', priority);
+                          }
+                          return isValid;
+                        })
+                        .map((priority) => (
+                          <SelectItem key={priority} value={priority}>
+                            {priority}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium">
+                    ${calculateCost(feature.effort).toLocaleString()}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => deleteFeature(feature.id)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="px-6 py-5 bg-gray-50 border-t border-gray-200">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Summary</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {Object.entries(summary).map(([priority, { count, cost }]) => (
+            <div key={priority} className="bg-white p-4 rounded-lg shadow-sm">
+              <div className="text-sm font-medium text-gray-500">{priority}</div>
+              <div className="mt-1">
+                <span className="text-2xl font-bold text-gray-900">{count}</span>
+                <span className="ml-2 text-sm text-gray-500">features</span>
+              </div>
+              <div className="mt-1 text-sm text-gray-500">
+                ${cost.toLocaleString()} total
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
