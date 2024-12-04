@@ -7,8 +7,8 @@ A modern feature estimation tool for agile teams to plan and track project effor
 - 📝 Add and manage feature estimates
 - 📊 Track effort and priorities
 - 💰 Configure effort to time and cost mapping
-- 📈 Generate estimation summaries
-- 👥 Team collaboration capabilities
+- 📈 Generate estimation summaries and cost calculations
+- 🔄 Real-time cost updates based on effort configurations
 - 📱 Responsive design for all devices
 
 ## Tech Stack
@@ -20,19 +20,17 @@ A modern feature estimation tool for agile teams to plan and track project effor
   - Tailwind CSS
   - shadcn/ui components
   - Zustand for state management
-  - React Query for data fetching
 
 - **Backend:**
-  - Next.js API Routes
-  - Prisma ORM
-  - PostgreSQL database
+  - Next.js API Routes (coming soon)
+  - Prisma ORM (coming soon)
+  - PostgreSQL database (coming soon)
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
-- PostgreSQL
 - pnpm (recommended) or npm
 
 ### Installation
@@ -48,41 +46,37 @@ A modern feature estimation tool for agile teams to plan and track project effor
    pnpm install
    ```
 
-3. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   ```
-   Then edit `.env` with your database configuration.
-
-4. Initialize the database:
-   ```bash
-   pnpm prisma migrate dev
-   ```
-
-5. Start the development server:
+3. Start the development server:
    ```bash
    pnpm dev
    ```
 
 The application will be available at `http://localhost:3000`
 
-## Development
-
-### Project Structure
+## Project Structure
 
 ```
 feature-estimator/
 ├── app/                    # Next.js app directory
-│   ├── api/               # API routes
-│   ├── (auth)/            # Authentication related pages
-│   └── (dashboard)/       # Main application pages
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Home page
 ├── components/            # React components
 │   ├── ui/               # shadcn/ui components
-│   └── features/         # Feature-specific components
+│   ├── feature-estimator.tsx
+│   └── effort-config.tsx
 ├── lib/                  # Utility functions and shared logic
-├── prisma/               # Database schema and migrations
+│   ├── store/            # Zustand state management
+│   │   ├── index.ts      # Store definition
+│   │   └── types.ts      # TypeScript interfaces
+│   └── utils.ts          # Helper functions
 └── public/               # Static assets
 ```
+
+### Key Components
+
+- **FeatureEstimator**: Main interface for managing features, their priorities, and efforts
+- **EffortConfiguration**: Interface for managing effort sizes and their associated costs
+- **Store**: Zustand store handling state management across components
 
 ### Available Scripts
 
@@ -90,8 +84,6 @@ feature-estimator/
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
-- `pnpm test` - Run tests
-- `pnpm prisma studio` - Open Prisma Studio
 
 ## Contributing
 
