@@ -2,11 +2,11 @@
 
 export function Header() {
   return (
-    <header className="bg-primary text-white p-4 shadow-md">
-      <div className="max-w-6xl mx-auto flex items-center gap-2">
-        <span className="text-2xl">🦊</span>
-        <h1 className="text-2xl font-bold">Honest Fox Feature Estimator</h1>
-      </div>
-    </header>
+    <div className="bg-[#FF5722] text-white">
+      <header className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+        <span className="text-2xl leading-none">🦊</span>
+        <h1 className="text-lg font-medium">Honest Fox Feature Estimator</h1>
+      </header>
+    </div>
   );
 }
