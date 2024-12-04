@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import {
   Table,
@@ -19,67 +18,55 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-interface Feature {
-  id: string;
-  title: string;
-  description: string;
-  effort: string;
-  priority: string;
-  category: string;
-}
+import { useStore } from '@/lib/store';
 
 export function FeatureEstimator() {
-  const [features, setFeatures] = useState<Feature[]>([
-    {
-      id: '1',
-      title: 'Mobile phone auth',
-      description: 'Login via mobile phone with text verification',
-      effort: 'Extra Small',
-      priority: 'Must',
-      category: 'Auth & Onboarding'
-    }
-  ]);
+  const { 
+    features, 
+    effortConfigs,
+    addFeature, 
+    updateFeature, 
+    deleteFeature 
+  } = useStore();
 
-  const effortOptions = ['Extra Small', 'Small', 'Medium', 'Large'];
-  const priorityOptions = ['Must', 'Should', 'Could'];
-
-  const addFeature = () => {
-    setFeatures([...features, {
-      id: Date.now().toString(),
+  const handleAdd = () => {
+    addFeature({
       title: '',
       description: '',
       effort: 'Medium',
       priority: 'Should',
       category: ''
-    }]);
+    });
   };
 
-  const updateFeature = (id: string, field: keyof Feature, value: string) => {
-    setFeatures(features.map(feature => 
-      feature.id === id ? { ...feature, [field]: value } : feature
-    ));
+  const handleUpdate = (id: string, field: string, value: string) => {
+    updateFeature(id, { [field]: value });
   };
 
-  const deleteFeature = (id: string) => {
-    setFeatures(features.filter(feature => feature.id !== id));
+  const calculateCost = (effort: string) => {
+    const config = effortConfigs.find(c => c.effortSize === effort);
+    return config ? config.days * config.costPerDay : 0;
   };
 
   const calculateSummary = () => {
     return features.reduce((acc, feature) => {
       const priority = feature.priority;
-      acc[priority] = (acc[priority] || 0) + 1;
+      const cost = calculateCost(feature.effort);
+      acc[priority] = acc[priority] || { count: 0, cost: 0 };
+      acc[priority].count++;
+      acc[priority].cost += cost;
       return acc;
-    }, {} as Record<string, number>);
+    }, {} as Record<string, { count: number; cost: number }>);
   };
 
   const summary = calculateSummary();
+  const priorityOptions = ['Must', 'Should', 'Could'];
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Feature Estimation</h1>
-        <Button onClick={addFeature} className="flex items-center gap-2">
+        <Button onClick={handleAdd} className="flex items-center gap-2">
           <Plus className="w-4 h-4" /> Add Feature
         </Button>
       </div>
@@ -92,6 +79,7 @@ export function FeatureEstimator() {
             <TableHead>Category</TableHead>
             <TableHead>Effort</TableHead>
             <TableHead>Priority</TableHead>
+            <TableHead>Cost</TableHead>
             <TableHead className="w-16">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -101,36 +89,36 @@ export function FeatureEstimator() {
               <TableCell>
                 <Input
                   value={feature.title}
-                  onChange={(e) => updateFeature(feature.id, 'title', e.target.value)}
+                  onChange={(e) => handleUpdate(feature.id, 'title', e.target.value)}
                   className="w-full"
                 />
               </TableCell>
               <TableCell>
                 <Input
                   value={feature.description}
-                  onChange={(e) => updateFeature(feature.id, 'description', e.target.value)}
+                  onChange={(e) => handleUpdate(feature.id, 'description', e.target.value)}
                   className="w-full"
                 />
               </TableCell>
               <TableCell>
                 <Input
                   value={feature.category}
-                  onChange={(e) => updateFeature(feature.id, 'category', e.target.value)}
+                  onChange={(e) => handleUpdate(feature.id, 'category', e.target.value)}
                   className="w-full"
                 />
               </TableCell>
               <TableCell>
                 <Select
                   value={feature.effort}
-                  onValueChange={(value) => updateFeature(feature.id, 'effort', value)}
+                  onValueChange={(value) => handleUpdate(feature.id, 'effort', value)}
                 >
                   <SelectTrigger>
                     <SelectValue>{feature.effort}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {effortOptions.map((effort) => (
-                      <SelectItem key={effort} value={effort}>
-                        {effort}
+                    {effortConfigs.map((config) => (
+                      <SelectItem key={config.effortSize} value={config.effortSize}>
+                        {config.effortSize}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -139,7 +127,7 @@ export function FeatureEstimator() {
               <TableCell>
                 <Select
                   value={feature.priority}
-                  onValueChange={(value) => updateFeature(feature.id, 'priority', value)}
+                  onValueChange={(value) => handleUpdate(feature.id, 'priority', value)}
                 >
                   <SelectTrigger>
                     <SelectValue>{feature.priority}</SelectValue>
@@ -152,6 +140,11 @@ export function FeatureEstimator() {
                     ))}
                   </SelectContent>
                 </Select>
+              </TableCell>
+              <TableCell>
+                <div className="font-medium">
+                  ${calculateCost(feature.effort).toLocaleString()}
+                </div>
               </TableCell>
               <TableCell>
                 <Button
@@ -170,10 +163,11 @@ export function FeatureEstimator() {
       <div className="bg-slate-50 p-4 rounded-lg">
         <h2 className="text-lg font-semibold mb-2">Summary</h2>
         <div className="grid grid-cols-3 gap-4">
-          {Object.entries(summary).map(([priority, count]) => (
+          {Object.entries(summary).map(([priority, { count, cost }]) => (
             <div key={priority} className="bg-white p-3 rounded-md shadow-sm">
               <div className="text-sm text-gray-600">{priority}</div>
               <div className="text-2xl font-bold">{count}</div>
+              <div className="text-sm text-gray-600">${cost.toLocaleString()}</div>
             </div>
           ))}
         </div>
