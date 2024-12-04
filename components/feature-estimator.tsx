@@ -26,6 +26,9 @@ import { useStore } from '@/lib/store';
 const DEBOUNCE_MS = 1000; // 1 second delay
 const updateTimeouts: { [key: string]: NodeJS.Timeout } = {};
 
+// Priority order constant
+const priorityOrder = ['Must', 'Should', 'Could'];
+
 export function FeatureEstimator() {
   const { 
     features, 
@@ -81,7 +84,8 @@ export function FeatureEstimator() {
   };
 
   const calculateSummary = () => {
-    return features.reduce((acc, feature) => {
+    // First create the summary data
+    const summaryData = features.reduce((acc, feature) => {
       const priority = feature.priority;
       const cost = calculateCost(feature.effort);
       acc[priority] = acc[priority] || { count: 0, cost: 0 };
@@ -89,10 +93,16 @@ export function FeatureEstimator() {
       acc[priority].cost += cost;
       return acc;
     }, {} as Record<string, { count: number; cost: number }>);
+
+    // Then return ordered array based on priorityOrder
+    return priorityOrder.map(priority => ({
+      priority,
+      ...summaryData[priority] || { count: 0, cost: 0 }
+    }));
   };
 
   const summary = calculateSummary();
-  const priorityOptions = ['Must', 'Should', 'Could'];
+  const priorityOptions = priorityOrder; // Use the same order for consistency
 
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>;
@@ -143,15 +153,13 @@ export function FeatureEstimator() {
                   />
                 </TableCell>
                 <TableCell className="py-4">
-                <TableCell className="w-1/3">
                   <Textarea
                     value={feature.description}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleUpdate(feature.id, 'description', e.target.value)}
+                    onChange={(e) => handleUpdate(feature.id, 'description', e.target.value)}
                     className="w-full min-h-[120px]"
                     placeholder="Enter bullet points or detailed description..."
                     disabled={isLoading}
                   />
-                </TableCell>
                 </TableCell>
                 <TableCell className="py-4">
                   <Input
@@ -197,19 +205,11 @@ export function FeatureEstimator() {
                       <SelectValue>{feature.priority}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {priorityOptions
-                        .filter(priority => {
-                          const isValid = priority?.trim();
-                          if (!isValid) {
-                            console.warn('Invalid priority:', priority);
-                          }
-                          return isValid;
-                        })
-                        .map((priority) => (
-                          <SelectItem key={priority} value={priority}>
-                            {priority}
-                          </SelectItem>
-                        ))}
+                      {priorityOptions.map((priority) => (
+                        <SelectItem key={priority} value={priority}>
+                          {priority}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </TableCell>
@@ -241,7 +241,7 @@ export function FeatureEstimator() {
       <div className="px-6 py-5 bg-gray-50 border-t border-gray-200">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Summary</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {Object.entries(summary).map(([priority, { count, cost }]) => (
+          {summary.map(({ priority, count, cost }) => (
             <div key={priority} className="bg-white p-4 rounded-lg shadow-sm">
               <div className="text-sm font-medium text-gray-500">{priority}</div>
               <div className="mt-1">
