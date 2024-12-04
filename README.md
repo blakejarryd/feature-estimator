@@ -48,21 +48,36 @@ A modern feature estimation tool for agile teams to plan and track project effor
    ```
    This step is required before running any other commands.
 
-3. Set up environment variables:
+3. Set up the database:
+
+   First, ensure PostgreSQL is running and create a new database:
+   ```bash
+   # Create the database
+   createdb feature_estimator
+
+   # If you need to create a new user
+   createuser -s postgres
+
+   # Set password for postgres user
+   psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+
+   # Grant privileges
+   psql -c "GRANT ALL PRIVILEGES ON DATABASE feature_estimator TO postgres;"
+   ```
+
+4. Set up environment variables:
    ```bash
    cp .env.example .env
    ```
-   Update the `.env` file with your PostgreSQL database URL:
+   The default .env.example uses:
    ```
-   DATABASE_URL="postgresql://user:password@localhost:5432/feature_estimator"
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/feature_estimator"
    ```
+   Update this if you're using different credentials.
 
-4. Create and initialize the database:
+5. Initialize the database:
    ```bash
-   # First, create the database in PostgreSQL
-   createdb feature_estimator
-
-   # Then set up the database (runs migrations, generates client, and seeds data)
+   # Set up database (runs migrations, generates client, and seeds data)
    pnpm db:setup
    ```
 
@@ -72,12 +87,38 @@ A modern feature estimation tool for agile teams to plan and track project effor
    - Medium: 10 days at $1000/day
    - Large: 20 days at $1000/day
 
-5. Start the development server:
+6. Start the development server:
    ```bash
    pnpm dev
    ```
 
 The application will be available at `http://localhost:3000`
+
+### Database Troubleshooting
+
+If you encounter permission issues:
+
+1. Check PostgreSQL connection:
+   ```bash
+   psql -U postgres -d feature_estimator
+   ```
+   If this fails, verify your PostgreSQL installation and user permissions.
+
+2. Common fixes:
+   ```bash
+   # Create postgres superuser if needed
+   createuser -s postgres
+
+   # Set password
+   psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+
+   # Grant privileges
+   psql -c "GRANT ALL PRIVILEGES ON DATABASE feature_estimator TO postgres;"
+   ```
+
+3. If using a different user/password:
+   - Update your .env file accordingly
+   - Example: `DATABASE_URL="postgresql://myuser:mypassword@localhost:5432/feature_estimator"`
 
 ## Database Management
 
