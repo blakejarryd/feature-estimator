@@ -11,16 +11,16 @@ model Feature {
   id          String   @id @default(cuid())
   title       String
   description String?
-  effort      String   // Extra Small, Small, Medium, Large
-  priority    String   // Must, Should, Could
+  effort      String
+  priority    String
   category    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model EffortConfig {
-  id         String @id @default(cuid())
-  effortSize String // Extra Small, Small, Medium, Large
+  id         String   @id @default(cuid())
+  effortSize String   @unique
   days       Float
   costPerDay Float
   createdAt  DateTime @default(now())
