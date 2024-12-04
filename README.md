@@ -58,17 +58,11 @@ A modern feature estimation tool for agile teams to plan and track project effor
 
 4. Initialize the database:
    ```bash
-   # Run database migrations
-   pnpm prisma migrate deploy
-
-   # Generate Prisma client
-   pnpm prisma generate
-
-   # Seed initial effort configurations
-   pnpm prisma db seed
+   # Set up database (runs migrations, generates client, and seeds data)
+   pnpm db:setup
    ```
 
-   Default effort configurations will be created:
+   This will create default effort configurations:
    - Extra Small: 3 days at $1000/day
    - Small: 5 days at $1000/day
    - Medium: 10 days at $1000/day
@@ -83,28 +77,32 @@ The application will be available at `http://localhost:3000`
 
 ## Database Management
 
-### Migrations
+### Available Database Commands
+
+```bash
+# Run database migrations
+pnpm prisma:migrate
+
+# Generate Prisma client
+pnpm prisma:generate
+
+# Seed database with initial data
+pnpm prisma:seed
+
+# Open Prisma Studio (database GUI)
+pnpm prisma:studio
+
+# Run all database setup steps
+pnpm db:setup
+```
+
+### Development Workflow
 
 When making changes to the Prisma schema:
 
-```bash
-# Create a new migration
-pnpm prisma migrate dev --name <migration-name>
-
-# Apply pending migrations
-pnpm prisma migrate deploy
-
-# Reset database (caution: deletes all data)
-pnpm prisma migrate reset
-```
-
-### Database GUI
-
-Prisma Studio provides a GUI for viewing and editing data:
-
-```bash
-pnpm prisma studio
-```
+1. Update `prisma/schema.prisma`
+2. Run `pnpm prisma migrate dev --name <migration-name>` to create a new migration
+3. Run `pnpm prisma:generate` to update the Prisma Client
 
 ## Project Structure
 
@@ -143,9 +141,11 @@ feature-estimator/
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
-- `pnpm prisma studio` - Open Prisma Studio
-- `pnpm prisma migrate deploy` - Run database migrations
-- `pnpm prisma db seed` - Seed the database
+- `pnpm prisma:studio` - Open Prisma Studio
+- `pnpm prisma:migrate` - Run database migrations
+- `pnpm prisma:generate` - Generate Prisma client
+- `pnpm prisma:seed` - Seed the database
+- `pnpm db:setup` - Run all database setup steps
 
 ## Contributing
 
