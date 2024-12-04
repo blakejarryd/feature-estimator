@@ -146,11 +146,19 @@ export function FeatureEstimator() {
                       <SelectValue>{feature.effort}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {effortConfigs.map((config) => (
-                        <SelectItem key={config.effortSize} value={config.effortSize}>
-                          {config.effortSize}
-                        </SelectItem>
-                      ))}
+                      {effortConfigs
+                        .filter(config => {
+                          const isValid = config.effortSize?.trim();
+                          if (!isValid) {
+                            console.warn('Invalid effortSize:', config.effortSize);
+                          }
+                          return isValid;
+                        })
+                        .map((config) => (
+                          <SelectItem key={config.effortSize} value={config.effortSize}>
+                            {config.effortSize}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </TableCell>
@@ -164,11 +172,19 @@ export function FeatureEstimator() {
                       <SelectValue>{feature.priority}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {priorityOptions.map((priority) => (
-                        <SelectItem key={priority} value={priority}>
-                          {priority}
-                        </SelectItem>
-                      ))}
+                      {priorityOptions
+                        .filter(priority => {
+                          const isValid = priority?.trim();
+                          if (!isValid) {
+                            console.warn('Invalid priority:', priority);
+                          }
+                          return isValid;
+                        })
+                        .map((priority) => (
+                          <SelectItem key={priority} value={priority}>
+                            {priority}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </TableCell>

@@ -58,10 +58,12 @@ export function FeatureEstimator() {
   }, [features]);
 
   const handleAdd = () => {
+    // Ensure we have valid default values
+    const defaultEffortSize = effortConfigs[0]?.effortSize || 'Medium';
     addFeature({
       title: '',
       description: '',
-      effort: effortConfigs[0]?.effortSize || 'Medium',
+      effort: defaultEffortSize,
       priority: 'Should',
       category: ''
     });
@@ -98,6 +100,11 @@ export function FeatureEstimator() {
 
   const summary = calculateSummary();
   const priorityOptions = ['Must', 'Should', 'Could'];
+
+  // Wait for data to load before rendering selects
+  if (isLoading || !effortConfigs.length) {
+    return <div>Loading...</div>;
+  }
 
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>;
@@ -159,37 +166,47 @@ export function FeatureEstimator() {
                 </TableCell>
                 <TableCell>
                   <Select
-                    value={feature.effort}
+                    value={feature.effort || effortConfigs[0]?.effortSize}
                     onValueChange={(value) => handleUpdate(feature.id, 'effort', value)}
                     disabled={isLoading}
                   >
                     <SelectTrigger>
-                      <SelectValue>{feature.effort}</SelectValue>
+                      <SelectValue>{feature.effort || effortConfigs[0]?.effortSize}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {effortConfigs.map((config) => (
-                        <SelectItem key={config.effortSize} value={config.effortSize}>
-                          {config.effortSize}
-                        </SelectItem>
-                      ))}
+                      {effortConfigs
+                        .filter(config => config.effortSize?.trim())
+                        .map((config) => (
+                          <SelectItem 
+                            key={config.effortSize} 
+                            value={config.effortSize}
+                          >
+                            {config.effortSize}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </TableCell>
                 <TableCell>
                   <Select
-                    value={feature.priority}
+                    value={feature.priority || 'Should'}
                     onValueChange={(value) => handleUpdate(feature.id, 'priority', value)}
                     disabled={isLoading}
                   >
                     <SelectTrigger>
-                      <SelectValue>{feature.priority}</SelectValue>
+                      <SelectValue>{feature.priority || 'Should'}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {priorityOptions.map((priority) => (
-                        <SelectItem key={priority} value={priority}>
-                          {priority}
-                        </SelectItem>
-                      ))}
+                      {priorityOptions
+                        .filter(priority => priority?.trim())
+                        .map((priority) => (
+                          <SelectItem 
+                            key={priority} 
+                            value={priority}
+                          >
+                            {priority}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </TableCell>

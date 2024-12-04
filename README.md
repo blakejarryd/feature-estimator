@@ -46,108 +46,65 @@ A modern feature estimation tool for agile teams to plan and track project effor
    ```bash
    pnpm install
    ```
-   This step is required before running any other commands.
 
-3. Set up the database:
-
-   First, ensure PostgreSQL is running and create a new database:
-   ```bash
-   # Create the database
-   createdb feature_estimator
-
-   # If you need to create a new user
-   createuser -s postgres
-
-   # Set password for postgres user
-   psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
-
-   # Grant privileges
-   psql -c "GRANT ALL PRIVILEGES ON DATABASE feature_estimator TO postgres;"
-   ```
-
-4. Set up environment variables:
+3. Set up environment variables:
    ```bash
    cp .env.example .env
    ```
-   The default .env.example uses:
+   Update the `.env` file with your PostgreSQL database URL:
    ```
-   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/feature_estimator"
+   DATABASE_URL="postgresql://user:password@localhost:5432/feature_estimator"
    ```
-   Update this if you're using different credentials.
 
-5. Initialize the database:
+4. Initialize the database:
    ```bash
-   # Set up database (runs migrations, generates client, and seeds data)
-   pnpm db:setup
+   # Run database migrations
+   pnpm prisma migrate deploy
+
+   # Generate Prisma client
+   pnpm prisma generate
+
+   # Seed initial effort configurations
+   pnpm prisma db seed
    ```
 
-   This will create default effort configurations:
+   Default effort configurations will be created:
    - Extra Small: 3 days at $1000/day
    - Small: 5 days at $1000/day
    - Medium: 10 days at $1000/day
    - Large: 20 days at $1000/day
 
-6. Start the development server:
+5. Start the development server:
    ```bash
    pnpm dev
    ```
 
 The application will be available at `http://localhost:3000`
 
-### Database Troubleshooting
-
-If you encounter permission issues:
-
-1. Check PostgreSQL connection:
-   ```bash
-   psql -U postgres -d feature_estimator
-   ```
-   If this fails, verify your PostgreSQL installation and user permissions.
-
-2. Common fixes:
-   ```bash
-   # Create postgres superuser if needed
-   createuser -s postgres
-
-   # Set password
-   psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
-
-   # Grant privileges
-   psql -c "GRANT ALL PRIVILEGES ON DATABASE feature_estimator TO postgres;"
-   ```
-
-3. If using a different user/password:
-   - Update your .env file accordingly
-   - Example: `DATABASE_URL="postgresql://myuser:mypassword@localhost:5432/feature_estimator"`
-
 ## Database Management
 
-### Available Database Commands
-
-```bash
-# Run database migrations
-pnpm prisma:migrate
-
-# Generate Prisma client
-pnpm prisma:generate
-
-# Seed database with initial data
-pnpm prisma:seed
-
-# Open Prisma Studio (database GUI)
-pnpm prisma:studio
-
-# Run all database setup steps
-pnpm db:setup
-```
-
-### Development Workflow
+### Migrations
 
 When making changes to the Prisma schema:
 
-1. Update `prisma/schema.prisma`
-2. Run `pnpm prisma migrate dev --name <migration-name>` to create a new migration
-3. Run `pnpm prisma:generate` to update the Prisma Client
+```bash
+# Create a new migration
+pnpm prisma migrate dev --name <migration-name>
+
+# Apply pending migrations
+pnpm prisma migrate deploy
+
+# Reset database (caution: deletes all data)
+pnpm prisma migrate reset
+```
+
+### Database GUI
+
+Prisma Studio provides a GUI for viewing and editing data:
+
+```bash
+pnpm prisma studio
+```
 
 ## Project Structure
 
@@ -182,16 +139,13 @@ feature-estimator/
 
 ### Available Scripts
 
-- `pnpm install` - Install dependencies (required first)
 - `pnpm dev` - Start development server
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
-- `pnpm prisma:studio` - Open Prisma Studio
-- `pnpm prisma:migrate` - Run database migrations
-- `pnpm prisma:generate` - Generate Prisma client
-- `pnpm prisma:seed` - Seed the database
-- `pnpm db:setup` - Run all database setup steps
+- `pnpm prisma studio` - Open Prisma Studio
+- `pnpm prisma migrate deploy` - Run database migrations
+- `pnpm prisma db seed` - Seed the database
 
 ## Contributing
 

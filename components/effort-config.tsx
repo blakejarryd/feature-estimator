@@ -31,7 +31,7 @@ export function EffortConfiguration() {
 
   const handleAdd = () => {
     addEffortConfig({
-      effortSize: '',
+      effortSize: 'Medium',
       days: 0,
       costPerDay: 0
     });
