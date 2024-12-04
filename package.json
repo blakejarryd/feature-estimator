@@ -10,10 +10,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "prisma": "prisma",
     "prisma:studio": "prisma studio",
-    "db:migrate": "prisma migrate deploy",
-    "db:seed": "prisma db seed",
-    "db:reset": "prisma migrate reset"
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:generate": "prisma generate",
+    "prisma:seed": "prisma db seed",
+    "db:setup": "pnpm prisma:migrate && pnpm prisma:generate && pnpm prisma:seed"
   },
   "dependencies": {
     "@prisma/client": "^5.7.0",
