@@ -104,12 +104,12 @@ export function FeatureEstimator() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Feature Estimation</h1>
+        <h1 className="text-xl font-semibold">Feature Estimation</h1>
         <Button 
           onClick={handleAdd} 
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-secondary hover:bg-secondary/90"
           disabled={isLoading}
         >
           {isLoading ? (
@@ -121,113 +121,115 @@ export function FeatureEstimator() {
         </Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Feature</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Effort</TableHead>
-            <TableHead>Priority</TableHead>
-            <TableHead>Cost</TableHead>
-            <TableHead className="w-16">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {localFeatures.map((feature) => (
-            <TableRow key={feature.id}>
-              <TableCell>
-                <Input
-                  value={feature.title}
-                  onChange={(e) => handleUpdate(feature.id, 'title', e.target.value)}
-                  className="w-full"
-                  disabled={isLoading}
-                />
-              </TableCell>
-              <TableCell>
-                <Input
-                  value={feature.description}
-                  onChange={(e) => handleUpdate(feature.id, 'description', e.target.value)}
-                  className="w-full"
-                  disabled={isLoading}
-                />
-              </TableCell>
-              <TableCell>
-                <Input
-                  value={feature.category}
-                  onChange={(e) => handleUpdate(feature.id, 'category', e.target.value)}
-                  className="w-full"
-                  disabled={isLoading}
-                />
-              </TableCell>
-              <TableCell>
-                <Select
-                  value={feature.effort}
-                  onValueChange={(value) => handleUpdate(feature.id, 'effort', value)}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue>{feature.effort}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {effortConfigs.map((config) => (
-                      <SelectItem key={config.effortSize} value={config.effortSize}>
-                        {config.effortSize}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </TableCell>
-              <TableCell>
-                <Select
-                  value={feature.priority}
-                  onValueChange={(value) => handleUpdate(feature.id, 'priority', value)}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue>{feature.priority}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {priorityOptions.map((priority) => (
-                      <SelectItem key={priority} value={priority}>
-                        {priority}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </TableCell>
-              <TableCell>
-                <div className="font-medium">
-                  ${calculateCost(feature.effort).toLocaleString()}
-                </div>
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => deleteFeature(feature.id)}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="w-4 h-4" />
-                  )}
-                </Button>
-              </TableCell>
+      <div className="bg-white rounded-lg shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Feature</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Effort</TableHead>
+              <TableHead>Priority</TableHead>
+              <TableHead>Cost</TableHead>
+              <TableHead className="w-16">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {localFeatures.map((feature) => (
+              <TableRow key={feature.id}>
+                <TableCell>
+                  <Input
+                    value={feature.title}
+                    onChange={(e) => handleUpdate(feature.id, 'title', e.target.value)}
+                    className="w-full"
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    value={feature.description}
+                    onChange={(e) => handleUpdate(feature.id, 'description', e.target.value)}
+                    className="w-full"
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Input
+                    value={feature.category}
+                    onChange={(e) => handleUpdate(feature.id, 'category', e.target.value)}
+                    className="w-full"
+                    disabled={isLoading}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Select
+                    value={feature.effort}
+                    onValueChange={(value) => handleUpdate(feature.id, 'effort', value)}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue>{feature.effort}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {effortConfigs.map((config) => (
+                        <SelectItem key={config.effortSize} value={config.effortSize}>
+                          {config.effortSize}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <Select
+                    value={feature.priority}
+                    onValueChange={(value) => handleUpdate(feature.id, 'priority', value)}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue>{feature.priority}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {priorityOptions.map((priority) => (
+                        <SelectItem key={priority} value={priority}>
+                          {priority}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium">
+                    ${calculateCost(feature.effort).toLocaleString()}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => deleteFeature(feature.id)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
-      <div className="bg-slate-50 p-4 rounded-lg">
-        <h2 className="text-lg font-semibold mb-2">Summary</h2>
+      <div className="bg-white p-4 rounded-lg shadow-sm">
+        <h2 className="text-lg font-medium mb-4">Summary</h2>
         <div className="grid grid-cols-3 gap-4">
           {Object.entries(summary).map(([priority, { count, cost }]) => (
-            <div key={priority} className="bg-white p-3 rounded-md shadow-sm">
-              <div className="text-sm text-gray-600">{priority}</div>
-              <div className="text-2xl font-bold">{count}</div>
-              <div className="text-sm text-gray-600">${cost.toLocaleString()}</div>
+            <div key={priority} className="space-y-1">
+              <div className="text-sm text-gray-500">{priority}</div>
+              <div className="text-2xl font-semibold">{count}</div>
+              <div className="text-sm text-gray-500">${cost.toLocaleString()}</div>
             </div>
           ))}
         </div>
