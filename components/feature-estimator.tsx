@@ -20,8 +20,7 @@ import {
 } from "./ui/select";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useStore } from '@/lib/store';
-import { useProjectStore } from '@/lib/store/project-store';
+import { useStore, useProjectStore } from '@/lib/store';
 import { Alert, AlertDescription } from './ui/alert';
 
 // Add debounce timeout storage outside component
