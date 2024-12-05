@@ -7,16 +7,16 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const feature = await prisma.feature.findUnique({
+    const project = await prisma.project.findUnique({
       where: { id: params.id },
       include: {
-        project: true
+        features: true
       }
     });
-    if (!feature) {
-      return errorResponse('Feature not found', 404);
+    if (!project) {
+      return errorResponse('Project not found', 404);
     }
-    return successResponse(feature);
+    return successResponse(project);
   } catch (error) {
     return errorResponse(error);
   }
@@ -28,14 +28,14 @@ export async function PATCH(
 ) {
   try {
     const body = await request.json();
-    const feature = await prisma.feature.update({
+    const project = await prisma.project.update({
       where: { id: params.id },
       data: body,
       include: {
-        project: true
+        features: true
       }
     });
-    return successResponse(feature);
+    return successResponse(project);
   } catch (error) {
     return errorResponse(error);
   }
@@ -46,10 +46,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await prisma.feature.delete({
+    await prisma.project.delete({
       where: { id: params.id },
     });
-    return successResponse({ message: 'Feature deleted successfully' });
+    return successResponse({ message: 'Project deleted successfully' });
   } catch (error) {
     return errorResponse(error);
   }
