@@ -1,18 +1,24 @@
-import { create } from "zustand";
-
-interface Project {
-  id: string;
-  name: string;
-  description?: string;
-  status: string;
-}
 export interface Feature {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   effort: string;
   priority: string;
-  category: string;
+  category?: string;
+  projectId: string;
+  project?: Project;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'ACTIVE' | 'ARCHIVED';
+  features: Feature[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface EffortConfig {
@@ -20,55 +26,40 @@ export interface EffortConfig {
   effortSize: string;
   days: number;
   costPerDay: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-interface StoreState {
-  projects: Project[];
-  currentProjectId: string | null;
+export interface CreateFeatureData {
+  title: string;
+  description?: string;
+  effort: string;
+  priority: string;
+  category?: string;
+}
+
+export interface FeatureState {
   features: Feature[];
   effortConfigs: EffortConfig[];
   isLoading: boolean;
   error: string | null;
-  fetchProjects: () => Promise<void>;
-  setCurrentProject: (projectId: string) => void;
+  setLoading: (isLoading: boolean) => void;
+  setError: (error: string | null) => void;
   fetchFeatures: () => Promise<void>;
+  addFeature: (feature: CreateFeatureData) => Promise<void>;
+  updateFeature: (id: string, updates: Partial<Feature>) => Promise<void>;
+  deleteFeature: (id: string) => Promise<void>;
+  fetchEffortConfigs: () => Promise<void>;
+  addEffortConfig: (config: Omit<EffortConfig, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateEffortConfig: (id: string, updates: Partial<EffortConfig>) => Promise<void>;
+  deleteEffortConfig: (id: string) => Promise<void>;
 }
 
-const useStore = create<StoreState>((set) => ({
-  projects: [],
-  currentProjectId: null,
-  features: [],
-  effortConfigs: [],
-  isLoading: false,
-  error: null,
-  
-  fetchProjects: async () => {
-    set({ isLoading: true });
-    try {
-      const response = await fetch('/api/projects');
-      const projects = await response.json();
-      set({ projects, isLoading: false });
-    } catch (error) {
-      set({ error: 'Failed to fetch projects', isLoading: false });
-    }
-  },
-
-  setCurrentProject: (projectId: string) => {
-    set({ currentProjectId: projectId });
-  },
-
-  // Update fetchFeatures to use currentProjectId
-  fetchFeatures: async () => {
-    set({ isLoading: true });
-    const { currentProjectId } = useStore.getState();
-    if (!currentProjectId) return;
-    
-    try {
-      const response = await fetch(`/api/projects/${currentProjectId}/features`);
-      const features = await response.json();
-      set({ features, isLoading: false });
-    } catch (error) {
-      set({ error: 'Failed to fetch features', isLoading: false });
-    }
-  },
-}));
+export interface ProjectState {
+  projects: Project[];
+  currentProject: Project | null;
+  setCurrentProject: (project: Project) => void;
+  fetchProjects: () => Promise<void>;
+  createProject: (data: { name: string; description?: string }) => Promise<void>;
+  updateProject: (id: string, data: Partial<Project>) => Promise<void>;
+}
