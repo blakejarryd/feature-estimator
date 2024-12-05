@@ -1,12 +1,20 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
+import { useProjectStore } from '../lib/store';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { fetchProjects } = useProjectStore();
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
   return (
     <html lang="en">
       <body>
