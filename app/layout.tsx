@@ -16,11 +16,11 @@ export default function RootLayout({
   }, [fetchProjects]);
 
   return (
-    <html lang="en">
-      <body>
-        <div className="flex">
+    <html lang="en" className="h-full bg-gray-50">
+      <body className="h-full">
+        <div className="flex h-full">
           <Sidebar />
-          <main className="flex-1 p-8">{children}</main>
+          <main className="flex-1">{children}</main>
         </div>
       </body>
     </html>
