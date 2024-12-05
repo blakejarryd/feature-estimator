@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { Plus, Trash2, Loader2 } from 'lucide-react';
-import { Textarea } from "./ui/textarea";
+import { AutoResizeTextarea } from "./ui/auto-resize-textarea";
 import {
   Table,
   TableBody,
@@ -157,10 +157,9 @@ export function FeatureEstimator() {
                   />
                 </TableCell>
                 <TableCell className="py-4">
-                  <Textarea
+                  <AutoResizeTextarea
                     value={feature.description}
                     onChange={(e) => handleUpdate(feature.id, 'description', e.target.value)}
-                    className="w-full min-h-[120px]"
                     placeholder="Enter bullet points or detailed description..."
                     disabled={isLoading}
                   />

@@ -1,5 +1,8 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { Textarea } from "./textarea";
+
 
 interface AutoResizeTextareaProps {
   value: string;

@@ -3,6 +3,14 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+
+  const defaultProject = await prisma.project.create({
+    data: {
+      name: 'Default Project',
+      description: 'Initial project created during setup'
+    }
+  });
+  
   const defaultConfigs = [
     { effortSize: 'Extra Small', days: 3, costPerDay: 1000 },
     { effortSize: 'Small', days: 5, costPerDay: 1000 },

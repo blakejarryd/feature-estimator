@@ -1,3 +1,11 @@
+import { create } from "zustand";
+
+interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  status: string;
+}
 export interface Feature {
   id: string;
   title: string;
@@ -14,25 +22,53 @@ export interface EffortConfig {
   costPerDay: number;
 }
 
-export interface AppState {
+interface StoreState {
+  projects: Project[];
+  currentProjectId: string | null;
   features: Feature[];
   effortConfigs: EffortConfig[];
   isLoading: boolean;
   error: string | null;
-  
-  // Feature actions
+  fetchProjects: () => Promise<void>;
+  setCurrentProject: (projectId: string) => void;
   fetchFeatures: () => Promise<void>;
-  addFeature: (feature: Omit<Feature, 'id'>) => Promise<void>;
-  updateFeature: (id: string, updates: Partial<Feature>) => Promise<void>;
-  deleteFeature: (id: string) => Promise<void>;
-  
-  // Effort config actions
-  fetchEffortConfigs: () => Promise<void>;
-  addEffortConfig: (config: Omit<EffortConfig, 'id'>) => Promise<void>;
-  updateEffortConfig: (id: string, updates: Partial<EffortConfig>) => Promise<void>;
-  deleteEffortConfig: (id: string) => Promise<void>;
-  
-  // UI state actions
-  setError: (error: string | null) => void;
-  setLoading: (isLoading: boolean) => void;
 }
+
+const useStore = create<StoreState>((set) => ({
+  projects: [],
+  currentProjectId: null,
+  features: [],
+  effortConfigs: [],
+  isLoading: false,
+  error: null,
+  
+  fetchProjects: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await fetch('/api/projects');
+      const projects = await response.json();
+      set({ projects, isLoading: false });
+    } catch (error) {
+      set({ error: 'Failed to fetch projects', isLoading: false });
+    }
+  },
+
+  setCurrentProject: (projectId: string) => {
+    set({ currentProjectId: projectId });
+  },
+
+  // Update fetchFeatures to use currentProjectId
+  fetchFeatures: async () => {
+    set({ isLoading: true });
+    const { currentProjectId } = useStore.getState();
+    if (!currentProjectId) return;
+    
+    try {
+      const response = await fetch(`/api/projects/${currentProjectId}/features`);
+      const features = await response.json();
+      set({ features, isLoading: false });
+    } catch (error) {
+      set({ error: 'Failed to fetch features', isLoading: false });
+    }
+  },
+}));
