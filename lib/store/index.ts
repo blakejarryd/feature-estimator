@@ -12,8 +12,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   fetchProjects: async () => {
     try {
+      console.log('Fetching projects...');
       const response = await fetch('/api/projects');
       const data = await response.json();
+      console.log('Projects response:', data);
       if (data.success) {
         set({ projects: data.data });
         if (!get().currentProject && data.data.length > 0) {
@@ -186,8 +188,6 @@ export const useStore = create<FeatureState>((set) => ({
       set(state => ({
         effortConfigs: state.effortConfigs.filter(config => config.id !== id)
       }));
-    } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to delete effort config' });
     } finally {
       set({ isLoading: false });
     }
