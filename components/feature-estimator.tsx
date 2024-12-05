@@ -21,6 +21,8 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useStore } from '@/lib/store';
+import { useProjectStore } from '@/lib/store/project-store';
+import { Alert, AlertDescription } from './ui/alert';
 
 // Add debounce timeout storage outside component
 const DEBOUNCE_MS = 1000; // 1 second delay
@@ -42,12 +44,21 @@ export function FeatureEstimator() {
     deleteFeature 
   } = useStore();
 
+  const { currentProject } = useProjectStore();
+
   useEffect(() => {
-    fetchFeatures();
     fetchEffortConfigs();
-  }, [fetchFeatures, fetchEffortConfigs]);
+  }, [fetchEffortConfigs]);
+
+  useEffect(() => {
+    if (currentProject) {
+      fetchFeatures();
+    }
+  }, [fetchFeatures, currentProject]);
 
   const handleAdd = () => {
+    if (!currentProject) return;
+
     addFeature({
       title: '',
       description: '',
@@ -108,6 +119,16 @@ export function FeatureEstimator() {
   const summary = calculateSummary();
   const priorityOptions = priorityOrder; // Use the same order for consistency
 
+  if (!currentProject) {
+    return (
+      <Alert>
+        <AlertDescription>
+          Select a project to manage features
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>;
   }
@@ -116,7 +137,12 @@ export function FeatureEstimator() {
     <div className="bg-white rounded-lg shadow-sm">
       <div className="px-6 py-5 border-b border-gray-200">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Feature Estimation</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{currentProject.name}</h1>
+            {currentProject.description && (
+              <p className="text-sm text-gray-500 mt-1">{currentProject.description}</p>
+            )}
+          </div>
           <Button 
             onClick={handleAdd} 
             className="flex items-center gap-2"
@@ -255,8 +281,8 @@ export function FeatureEstimator() {
               ${cost.toLocaleString()} total
             </div>
             <div className="mt-1 text-sm text-gray-500">
-      {days} days total
-    </div>
+              {days} days total
+            </div>
           </div>
         ))}
         </div>
