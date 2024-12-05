@@ -12,6 +12,7 @@ export default function RootLayout({
   const { fetchProjects } = useProjectStore();
 
   useEffect(() => {
+    console.log('Layout mounted, fetching projects...');
     fetchProjects();
   }, [fetchProjects]);
 
