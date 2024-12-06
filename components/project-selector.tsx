@@ -40,10 +40,14 @@ export function ProjectSelector() {
     }
   };
 
+  const handleProjectSelect = (project: any) => {
+    setCurrentProject(project);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">ACTIVE PROJECTS</h2>
+        <h2 className="text-2xl font-bold">Projects</h2>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
@@ -90,7 +94,7 @@ export function ProjectSelector() {
             className={`cursor-pointer transition-colors hover:bg-gray-50 ${
               currentProject?.id === project.id ? 'border-2 border-primary' : ''
             }`}
-            onClick={() => setCurrentProject(project)}
+            onClick={() => handleProjectSelect(project)}
           >
             <CardHeader>
               <CardTitle>{project.name}</CardTitle>
