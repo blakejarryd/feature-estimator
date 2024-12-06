@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -25,22 +25,39 @@ import { useProjectStore } from '@/lib/store';
 import { useState, useEffect } from 'react';
 
 export function ProjectSelector() {
-  const { projects, currentProject, createProject, setCurrentProject, fetchProjects } = useProjectStore();
+  const { 
+    projects, 
+    currentProject, 
+    createProject, 
+    setCurrentProject, 
+    fetchProjects,
+    isLoading,
+    error 
+  } = useProjectStore();
+  
   const [isOpen, setIsOpen] = useState(false);
   const [newProject, setNewProject] = useState({ name: '', description: '' });
 
   const handleCreateProject = async () => {
     if (newProject.name.trim()) {
       await createProject(newProject);
-      await fetchProjects(); // Fetch updated project list
+      await fetchProjects();
       setNewProject({ name: '', description: '' });
       setIsOpen(false);
     }
   };
 
-  const handleProjectSelect = (project: any) => {
-    setCurrentProject(project);
-  };
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -48,8 +65,12 @@ export function ProjectSelector() {
         <h2 className="text-2xl font-bold">Projects</h2>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
+            <Button className="flex items-center gap-2" disabled={isLoading}>
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Plus className="w-4 h-4" />
+              )}
               New Project
             </Button>
           </DialogTrigger>
@@ -67,6 +88,7 @@ export function ProjectSelector() {
                   id="name"
                   value={newProject.name}
                   onChange={e => setNewProject(prev => ({ ...prev, name: e.target.value }))}
+                  disabled={isLoading}
                 />
               </div>
               <div>
@@ -75,17 +97,27 @@ export function ProjectSelector() {
                   id="description"
                   value={newProject.description}
                   onChange={e => setNewProject(prev => ({ ...prev, description: e.target.value }))}
+                  disabled={isLoading}
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={handleCreateProject}>Create Project</Button>
+              <Button onClick={handleCreateProject} disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                Create Project
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
       
-      {projects.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="w-6 h-6 animate-spin" />
+        </div>
+      ) : projects.length === 0 ? (
         <Alert>
           <AlertDescription>
             No projects found. Click "New Project" to create one.
@@ -99,7 +131,7 @@ export function ProjectSelector() {
               className={`cursor-pointer transition-colors hover:bg-gray-50 ${
                 currentProject?.id === project.id ? 'border-2 border-primary' : ''
               }`}
-              onClick={() => handleProjectSelect(project)}
+              onClick={() => setCurrentProject(project)}
             >
               <CardHeader>
                 <CardTitle>{project.name}</CardTitle>
