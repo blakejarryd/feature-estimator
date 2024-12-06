@@ -2,6 +2,7 @@
 
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Card,
   CardContent,
@@ -24,13 +25,9 @@ import { useProjectStore } from '@/lib/store';
 import { useState, useEffect } from 'react';
 
 export function ProjectSelector() {
-  const { projects, currentProject, fetchProjects, createProject, setCurrentProject } = useProjectStore();
+  const { projects, currentProject, createProject, setCurrentProject } = useProjectStore();
   const [isOpen, setIsOpen] = useState(false);
   const [newProject, setNewProject] = useState({ name: '', description: '' });
-
-  useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
 
   const handleCreateProject = async () => {
     if (newProject.name.trim()) {
@@ -87,29 +84,37 @@ export function ProjectSelector() {
         </Dialog>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {projects.map(project => (
-          <Card 
-            key={project.id}
-            className={`cursor-pointer transition-colors hover:bg-gray-50 ${
-              currentProject?.id === project.id ? 'border-2 border-primary' : ''
-            }`}
-            onClick={() => handleProjectSelect(project)}
-          >
-            <CardHeader>
-              <CardTitle>{project.name}</CardTitle>
-              {project.description && (
-                <CardDescription>{project.description}</CardDescription>
-              )}
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500">
-                Features: {project.features?.length || 0}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {projects.length === 0 ? (
+        <Alert>
+          <AlertDescription>
+            No projects found. Click "New Project" to create one.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {projects.map(project => (
+            <Card 
+              key={project.id}
+              className={`cursor-pointer transition-colors hover:bg-gray-50 ${
+                currentProject?.id === project.id ? 'border-2 border-primary' : ''
+              }`}
+              onClick={() => handleProjectSelect(project)}
+            >
+              <CardHeader>
+                <CardTitle>{project.name}</CardTitle>
+                {project.description && (
+                  <CardDescription>{project.description}</CardDescription>
+                )}
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-500">
+                  Features: {project.features?.length || 0}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
