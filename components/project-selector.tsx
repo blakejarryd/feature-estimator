@@ -25,13 +25,14 @@ import { useProjectStore } from '@/lib/store';
 import { useState, useEffect } from 'react';
 
 export function ProjectSelector() {
-  const { projects, currentProject, createProject, setCurrentProject } = useProjectStore();
+  const { projects, currentProject, createProject, setCurrentProject, fetchProjects } = useProjectStore();
   const [isOpen, setIsOpen] = useState(false);
   const [newProject, setNewProject] = useState({ name: '', description: '' });
 
   const handleCreateProject = async () => {
     if (newProject.name.trim()) {
       await createProject(newProject);
+      await fetchProjects(); // Fetch updated project list
       setNewProject({ name: '', description: '' });
       setIsOpen(false);
     }
