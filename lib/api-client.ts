@@ -7,12 +7,13 @@ export async function fetchApi<T>(url: string, options?: RequestInit): Promise<T
     },
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'API request failed');
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error(data.error || 'API request failed');
   }
 
-  return response.json();
+  return data.data;
 }
 
 export const api = {
