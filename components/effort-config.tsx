@@ -12,6 +12,7 @@ import {
   TableRow,
 } from './ui/table';
 import { Input } from './ui/input';
+import { Alert, AlertDescription } from './ui/alert';
 import { useStore } from '@/lib/store';
 
 export function EffortConfiguration() {
@@ -42,7 +43,11 @@ export function EffortConfiguration() {
   };
 
   if (error) {
-    return <div className="p-4 text-red-500">Error: {error}</div>;
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   }
 
   return (
@@ -66,68 +71,80 @@ export function EffortConfiguration() {
       </div>
 
       <div className="px-6 py-4 overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Effort Size</TableHead>
-              <TableHead>Days</TableHead>
-              <TableHead>Cost per Day</TableHead>
-              <TableHead>Total Cost</TableHead>
-              <TableHead className="w-16">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {effortConfigs.map((config) => (
-              <TableRow key={config.id}>
-                <TableCell>
-                  <Input
-                    value={config.effortSize}
-                    onChange={(e) => handleUpdate(config.id, 'effortSize', e.target.value)}
-                    className="w-full"
-                    disabled={isLoading}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type="number"
-                    value={config.days}
-                    onChange={(e) => handleUpdate(config.id, 'days', parseFloat(e.target.value))}
-                    className="w-full"
-                    disabled={isLoading}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type="number"
-                    value={config.costPerDay}
-                    onChange={(e) => handleUpdate(config.id, 'costPerDay', parseFloat(e.target.value))}
-                    className="w-full"
-                    disabled={isLoading}
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="font-medium">
-                    ${(config.days * config.costPerDay).toLocaleString()}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => deleteEffortConfig(config.id)}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-4 h-4" />
-                    )}
-                  </Button>
-                </TableCell>
+        {isLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin" />
+          </div>
+        ) : !effortConfigs || effortConfigs.length === 0 ? (
+          <Alert>
+            <AlertDescription>
+              No effort configurations found. Click "Add Configuration" to create one.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Effort Size</TableHead>
+                <TableHead>Days</TableHead>
+                <TableHead>Cost per Day</TableHead>
+                <TableHead>Total Cost</TableHead>
+                <TableHead className="w-16">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {effortConfigs.map((config) => (
+                <TableRow key={config.id}>
+                  <TableCell>
+                    <Input
+                      value={config.effortSize}
+                      onChange={(e) => handleUpdate(config.id, 'effortSize', e.target.value)}
+                      className="w-full"
+                      disabled={isLoading}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={config.days}
+                      onChange={(e) => handleUpdate(config.id, 'days', parseFloat(e.target.value))}
+                      className="w-full"
+                      disabled={isLoading}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={config.costPerDay}
+                      onChange={(e) => handleUpdate(config.id, 'costPerDay', parseFloat(e.target.value))}
+                      className="w-full"
+                      disabled={isLoading}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">
+                      ${(config.days * config.costPerDay).toLocaleString()}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => deleteEffortConfig(config.id)}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
     </div>
   );
