@@ -7,8 +7,17 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const { fetchProjects } = useProjectStore();
 
   useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
+    const loadProjects = async () => {
+      try {
+        console.log('Loading projects...');
+        await fetchProjects();
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      }
+    };
+    
+    loadProjects();
+  }, []); // Remove fetchProjects from dependencies to avoid re-renders
 
   return <>{children}</>;
 }
