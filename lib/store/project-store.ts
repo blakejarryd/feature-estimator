@@ -5,12 +5,15 @@ import { api } from '../api-client';
 export const useProjectStore = create<ProjectState>((set, get) => ({
   projects: [],
   currentProject: null,
+  isLoading: false,
+  error: null,
 
   setCurrentProject: (project) => {
     set({ currentProject: project });
   },
 
   fetchProjects: async () => {
+    set({ isLoading: true, error: null });
     try {
       const response = await fetch('/api/projects');
       const data = await response.json();
@@ -22,11 +25,16 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         }
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to fetch projects';
+      set({ error: message });
       console.error('Failed to fetch projects:', error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 
   createProject: async (data) => {
+    set({ isLoading: true, error: null });
     try {
       const response = await fetch('/api/projects', {
         method: 'POST',
@@ -42,11 +50,16 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         }));
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create project';
+      set({ error: message });
       console.error('Failed to create project:', error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 
   updateProject: async (id, data) => {
+    set({ isLoading: true, error: null });
     try {
       const response = await fetch(`/api/projects/${id}`, {
         method: 'PATCH',
@@ -66,7 +79,42 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         }));
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update project';
+      set({ error: message });
       console.error('Failed to update project:', error);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deleteProject: async (projectId) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) throw new Error('Failed to delete project');
+      
+      set(state => {
+        // Remove the project from the projects list
+        const updatedProjects = state.projects.filter(p => p.id !== projectId);
+        
+        // If the deleted project was the current project, clear it
+        const updatedCurrentProject = 
+          state.currentProject?.id === projectId ? null : state.currentProject;
+        
+        return {
+          projects: updatedProjects,
+          currentProject: updatedCurrentProject,
+        };
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to delete project';
+      set({ error: message });
+      console.error('Failed to delete project:', error);
+    } finally {
+      set({ isLoading: false });
     }
   },
 }));
