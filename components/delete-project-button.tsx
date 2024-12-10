@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useProjectStore } from '@/lib/store/project-store';
 
 interface DeleteProjectButtonProps {
   projectId: string;
@@ -22,26 +22,10 @@ interface DeleteProjectButtonProps {
 }
 
 export function DeleteProjectButton({ projectId, projectName }: DeleteProjectButtonProps) {
-  const router = useRouter();
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { deleteProject, isLoading } = useProjectStore();
 
   const handleDelete = async () => {
-    try {
-      setIsDeleting(true);
-      const response = await fetch(`/api/projects/${projectId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete project');
-      }
-
-      router.refresh(); // Refresh the page to update the project list
-    } catch (error) {
-      console.error('Error deleting project:', error);
-    } finally {
-      setIsDeleting(false);
-    }
+    await deleteProject(projectId);
   };
 
   return (
@@ -63,10 +47,10 @@ export function DeleteProjectButton({ projectId, projectName }: DeleteProjectBut
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            disabled={isDeleting}
+            disabled={isLoading}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isDeleting ? 'Deleting...' : 'Delete'}
+            {isLoading ? 'Deleting...' : 'Delete'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
