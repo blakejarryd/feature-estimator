@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { FeatureState } from './types';
+import { FeatureState, Feature, EffortConfig } from './types';
 import { api } from '../api-client';
 import { useProjectStore } from './project-store';
 
@@ -18,7 +18,7 @@ export const useStore = create<FeatureState>((set) => ({
 
     try {
       set({ isLoading: true, error: null });
-      const features = await api.features.list(currentProject.id);
+      const features = await api.features.list(currentProject.id) as Feature[];
       set({ features });
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to fetch features' });
@@ -33,8 +33,8 @@ export const useStore = create<FeatureState>((set) => ({
 
     try {
       set({ isLoading: true, error: null });
-      const newFeature = await api.features.create({ ...feature, projectId: currentProject.id });
-      set(state => ({ features: [...state.features, newFeature] }));
+      const newFeature = await api.features.create({ ...feature, projectId: currentProject.id }) as Feature;
+      set((state) => ({ features: [...state.features, newFeature] }));
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to add feature' });
     } finally {
@@ -45,10 +45,10 @@ export const useStore = create<FeatureState>((set) => ({
   updateFeature: async (id, updates) => {
     try {
       set({ isLoading: true, error: null });
-      const updatedFeature = await api.features.update(id, updates);
-      set(state => ({
-        features: state.features.map(feature =>
-          feature.id === id ? updatedFeature : feature
+      const updatedFeature = await api.features.update(id, updates) as Feature;
+      set((state) => ({
+        features: state.features.map(feature => 
+          feature.id === id ? { ...feature, ...updates } : feature
         )
       }));
     } catch (error) {
@@ -75,7 +75,7 @@ export const useStore = create<FeatureState>((set) => ({
   fetchEffortConfigs: async () => {
     try {
       set({ isLoading: true, error: null });
-      const effortConfigs = await api.effortConfigs.list();
+      const effortConfigs = await api.effortConfigs.list() as EffortConfig[];
       set({ effortConfigs });
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to fetch effort configs' });
@@ -87,7 +87,7 @@ export const useStore = create<FeatureState>((set) => ({
   addEffortConfig: async (config) => {
     try {
       set({ isLoading: true, error: null });
-      const newConfig = await api.effortConfigs.create(config);
+      const newConfig = await api.effortConfigs.create(config) as EffortConfig;
       set(state => ({ effortConfigs: [...state.effortConfigs, newConfig] }));
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to add effort config' });
@@ -99,7 +99,7 @@ export const useStore = create<FeatureState>((set) => ({
   updateEffortConfig: async (id, updates) => {
     try {
       set({ isLoading: true, error: null });
-      const updatedConfig = await api.effortConfigs.update(id, updates);
+      const updatedConfig = await api.effortConfigs.update(id, updates) as EffortConfig;
       set(state => ({
         effortConfigs: state.effortConfigs.map(config =>
           config.id === id ? updatedConfig : config

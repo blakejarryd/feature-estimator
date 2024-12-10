@@ -183,7 +183,7 @@ export function FeatureEstimator() {
                 </TableCell>
                 <TableCell className="py-4">
                   <AutoResizeTextarea
-                    value={feature.description}
+                    value={feature.description || ''}
                     onChange={(e) => handleUpdate(feature.id, 'description', e.target.value)}
                     placeholder="Enter bullet points or detailed description..."
                     disabled={isLoading}
