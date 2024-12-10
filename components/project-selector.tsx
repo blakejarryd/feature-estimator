@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useProjectStore } from '@/lib/store';
+import { useProjectStore } from '@/lib/store/project-store';
 import { useState, useEffect } from 'react';
 import { DeleteProjectButton } from './delete-project-button';
 
