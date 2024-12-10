@@ -9,6 +9,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import {
   Dialog,
@@ -23,6 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useProjectStore } from '@/lib/store';
 import { useState, useEffect } from 'react';
+import { DeleteProjectButton } from './delete-project-button';
 
 export function ProjectSelector() {
   const { 
@@ -128,22 +130,35 @@ export function ProjectSelector() {
           {projects.map(project => (
             <Card 
               key={project.id}
-              className={`cursor-pointer transition-colors hover:bg-gray-50 ${
+              className={`relative ${
                 currentProject?.id === project.id ? 'border-2 border-primary' : ''
               }`}
-              onClick={() => setCurrentProject(project)}
             >
-              <CardHeader>
-                <CardTitle>{project.name}</CardTitle>
-                {project.description && (
-                  <CardDescription>{project.description}</CardDescription>
-                )}
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-500">
-                  Features: {project.features?.length || 0}
-                </p>
-              </CardContent>
+              <div 
+                className="absolute top-0 right-0 p-2 z-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <DeleteProjectButton 
+                  projectId={project.id} 
+                  projectName={project.name} 
+                />
+              </div>
+              <div 
+                className="cursor-pointer"
+                onClick={() => setCurrentProject(project)}
+              >
+                <CardHeader>
+                  <CardTitle>{project.name}</CardTitle>
+                  {project.description && (
+                    <CardDescription>{project.description}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-500">
+                    Features: {project.features?.length || 0}
+                  </p>
+                </CardContent>
+              </div>
             </Card>
           ))}
         </div>
