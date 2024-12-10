@@ -13,7 +13,7 @@ import {
 } from './ui/table';
 import { Input } from './ui/input';
 import { Alert, AlertDescription } from './ui/alert';
-import { useStore } from '@/lib/store';
+import { useStore } from '@/lib/store/feature-store';
 
 export function EffortConfiguration() {
   const { 
