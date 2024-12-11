@@ -9,7 +9,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from '@/components/ui/card';
 import {
   Dialog,
@@ -126,39 +125,32 @@ export function ProjectSelector() {
           </AlertDescription>
         </Alert>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="space-y-2">
           {projects.map(project => (
             <Card 
               key={project.id}
-              className={`relative ${
-                currentProject?.id === project.id ? 'border-2 border-primary' : ''
+              className={`cursor-pointer transition-colors hover:bg-accent/50 relative ${
+                currentProject?.id === project.id ? 'bg-accent' : ''
               }`}
+              onClick={() => setCurrentProject(project)}
             >
-              <div 
-                className="absolute top-0 right-0 p-2 z-10"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div className="absolute top-2 right-2 z-10">
                 <DeleteProjectButton 
                   projectId={project.id} 
                   projectName={project.name} 
                 />
               </div>
-              <div 
-                className="cursor-pointer"
-                onClick={() => setCurrentProject(project)}
-              >
-                <CardHeader>
-                  <CardTitle>{project.name}</CardTitle>
-                  {project.description && (
-                    <CardDescription>{project.description}</CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-500">
-                    Features: {project.features?.length || 0}
-                  </p>
-                </CardContent>
-              </div>
+              <CardHeader className="py-3">
+                <CardTitle className="text-base font-medium">{project.name}</CardTitle>
+                {project.description && (
+                  <CardDescription className="text-sm">{project.description}</CardDescription>
+                )}
+              </CardHeader>
+              <CardContent className="py-2">
+                <p className="text-xs text-muted-foreground">
+                  Features: {project.features?.length || 0}
+                </p>
+              </CardContent>
             </Card>
           ))}
         </div>
